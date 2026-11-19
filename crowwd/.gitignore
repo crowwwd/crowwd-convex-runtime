@@ -1,0 +1,9 @@
+# Local evidence, credentials and generated releases
+.env
+.env.*
+!.env.example
+*.private.*
+private/
+raw-evidence/
+artifacts/
+releases/local/
