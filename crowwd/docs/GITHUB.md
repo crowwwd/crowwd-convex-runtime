@@ -15,10 +15,10 @@ git remote -v
 git remote add origin git@github.com:crowwwd/crowwd-convex-runtime.git
 git add AGENTS.md CROWWD.md crowwd
 git commit -m "Document Crowwd runtime investigation and release process"
-git push -u origin codex/crowwd-runtime-bootstrap
+git push -u origin crowwd-runtime-bootstrap
 ```
 
-Open a pull request in YOUR organization's fork from codex/crowwd-runtime-bootstrap to its main branch. Review the context commit; do not accidentally open it against the upstream Convex repository. No force push is needed. The local upstream remote already points to the official repository; origin should point to the organization fork.
+Open a pull request in YOUR organization's fork from crowwd-runtime-bootstrap to its main branch. Review the context commit; do not accidentally open it against the upstream Convex repository. No force push is needed. The local upstream remote already points to the official repository; origin should point to the organization fork.
 
 GitHub fork instructions: https://docs.github.com/en/pull-requests/how-tos/work-with-forks/fork-a-repo
 

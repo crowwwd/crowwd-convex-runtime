@@ -6,7 +6,7 @@ Start here for Crowwd-specific work. This repository is a local checkout of the 
 
 - Setup only: no native memory fix has been applied, no custom release has been built, and nothing has been deployed from this project.
 - GitHub organization fork and origin remote are not created yet. See crowwd/docs/GITHUB.md.
-- The bootstrap branch is codex/crowwd-runtime-bootstrap. Its upstream snapshot is d77e88d30d5d6ce4b64120a847c9805fc345fc46, not a validated production release base.
+- The bootstrap branch is crowwd-runtime-bootstrap. Its upstream snapshot is d77e88d30d5d6ce4b64120a847c9805fc345fc46, not a validated production release base.
 - Existing Crowwd application code remains in ../crowwd. This repository owns the self-hosted Convex ENGINE, not Expo screens or application functions.
 
 ## Read in this order
