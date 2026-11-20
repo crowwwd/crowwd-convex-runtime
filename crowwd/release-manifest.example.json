@@ -1,0 +1,16 @@
+{
+  "status": "template - not deployable",
+  "baselineProductionImage": null,
+  "upstreamCommit": null,
+  "patchCommit": null,
+  "toolchainIdentity": null,
+  "candidateImageByDigest": null,
+  "applicationCommit": null,
+  "configurationDifferences": [],
+  "schemaMigrationCompatibility": null,
+  "previewTestReport": null,
+  "rollbackImageByDigest": null,
+  "rollbackVerificationReport": null,
+  "candidateReviewed": false,
+  "productionAuthorized": false
+}

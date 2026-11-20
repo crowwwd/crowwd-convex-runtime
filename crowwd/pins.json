@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-11-19",
+  "status": "historical evidence only; no native candidate release exists",
+  "upstreamRepository": "https://github.com/convex/convex-backend",
+  "bootstrapCheckoutCommit": "d77e88d30d5d6ce4b64120a847c9805fc345fc46",
+  "observedProduction": {
+    "image": "ghcr.io/convex/convex-backend@sha256:294944b33dc55e8f68b2feda11c5e7b195f7778b9ad2951f1bea2744ad392e5a",
+    "upstreamCommit": null,
+    "note": "Resolve this image's source revision before choosing the native patch base."
+  },
+  "observedPreview": {
+    "image": "ghcr.io/convex/convex-backend@sha256:df3e32d53c4305188f593c770c32640417ab2d5b4ba57013057741e80e52f6dd",
+    "upstreamCommit": "65a94913ee82308e7c6f295c4f964eaa34c0c6d7"
+  },
+  "historicalExperimentalImages": {
+    "supervisorV2Digest": "sha256:0239a6b286eb9664450a01d0a4dbbbf6a1c8239ca343f02cfe8e8f868c723ff5",
+    "allocatorOnlyDigest": "sha256:a9ae78b427134014d5c4c470461c8a6be6f1255922517551f73f6aaacc366965",
+    "note": "Railway build artifacts; neither is a validated native patch or active release pin."
+  },
+  "nativeCandidate": null,
+  "intendedApplicationCommit": null,
+  "registryDestination": null
+}
