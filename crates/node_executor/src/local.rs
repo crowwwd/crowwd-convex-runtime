@@ -1,14 +1,20 @@
 use std::{
     fs,
     path::PathBuf,
-    sync::{Arc, Mutex as StdMutex},
+    sync::{
+        Arc,
+        Mutex as StdMutex,
+    },
     time::Duration,
 };
 
 use anyhow::Context;
 use async_trait::async_trait;
 use common::{
-    knobs::{NODE_EXECUTOR_IDLE_TIMEOUT, NODE_EXECUTOR_MAX_LIFETIME},
+    knobs::{
+        NODE_EXECUTOR_IDLE_TIMEOUT,
+        NODE_EXECUTOR_MAX_LIFETIME,
+    },
     log_lines::LogLine,
 };
 use errors::ErrorMetadata;
@@ -23,7 +29,6 @@ use reqwest::Client;
 use serde_json::Value as JsonValue;
 use tempfile::TempDir;
 use tokio::{
-    time::Instant,
     process::{
         Child,
         Command as TokioCommand,
@@ -32,6 +37,7 @@ use tokio::{
         mpsc,
         Mutex,
     },
+    time::Instant,
 };
 
 use crate::{
@@ -75,7 +81,8 @@ struct InnerLocalNodeExecutor {
     last_finished: StdMutex<Instant>,
 }
 
-// Drops only after the owned invocation consumes the response, including streaming.
+// Drops only after the owned invocation consumes the response, including
+// streaming.
 struct ActiveInvocation(Arc<InnerLocalNodeExecutor>);
 
 impl Drop for ActiveInvocation {
@@ -277,7 +284,10 @@ impl LocalNodeExecutor {
 
     async fn retire_if_current(&self, worker: &Arc<InnerLocalNodeExecutor>) {
         let mut slot = self.inner.lock().await;
-        if slot.as_ref().is_some_and(|current| Arc::ptr_eq(current, worker)) {
+        if slot
+            .as_ref()
+            .is_some_and(|current| Arc::ptr_eq(current, worker))
+        {
             slot.take();
         }
     }
@@ -290,18 +300,19 @@ impl LocalNodeExecutor {
         let worker = {
             let mut inner = self.inner.lock().await;
             if inner.is_none() {
-                *inner = Some(
-                    Arc::new(InnerLocalNodeExecutor::new(&self.config)
+                *inner = Some(Arc::new(
+                    InnerLocalNodeExecutor::new(&self.config)
                         .await
-                        .context("Failed to create inner local node executor")?),
-                )
+                        .context("Failed to create inner local node executor")?,
+                ))
             }
             inner.as_ref().unwrap().clone()
         };
         let invocation = ActiveInvocation(worker);
         let worker = &invocation.0;
 
-        let response_result = worker.client
+        let response_result = worker
+            .client
             .post("http://localhost/invoke".to_string())
             .json(&request_json)
             .timeout(self.config.node_process_timeout)
@@ -426,10 +437,8 @@ impl NodeExecutor for LocalNodeExecutor {
                     let _ = log_line_sender.send(line);
                 }
             };
-            let (result, ()) = tokio::join!(
-                executor.invoke_owned(request_json, sender),
-                forward_logs,
-            );
+            let (result, ()) =
+                tokio::join!(executor.invoke_owned(request_json, sender), forward_logs,);
             result
         })
         .await
@@ -439,12 +448,14 @@ impl NodeExecutor for LocalNodeExecutor {
     fn shutdown(&self) {}
 }
 
-
 #[cfg(test)]
 mod tests {
     use std::process::Stdio;
 
-    use tokio::io::{AsyncBufReadExt, BufReader};
+    use tokio::io::{
+        AsyncBufReadExt,
+        BufReader,
+    };
 
     use super::*;
 
@@ -463,7 +474,9 @@ mod tests {
         worker_with_marker(None).await
     }
 
-    async fn worker_with_marker(marker: Option<&std::path::Path>) -> anyhow::Result<Arc<InnerLocalNodeExecutor>> {
+    async fn worker_with_marker(
+        marker: Option<&std::path::Path>,
+    ) -> anyhow::Result<Arc<InnerLocalNodeExecutor>> {
         let source_dir = TempDir::new()?;
         let script = r#"
             const http = require('http');
@@ -484,7 +497,11 @@ mod tests {
             });
         "#;
         let mut command = TokioCommand::new("node");
-        command.arg("-e").arg(script).stdout(Stdio::piped()).kill_on_drop(true);
+        command
+            .arg("-e")
+            .arg(script)
+            .stdout(Stdio::piped())
+            .kill_on_drop(true);
         if let Some(marker) = marker {
             command.env("CROWWD_TEST_COMPLETED_FILE", marker);
         }
@@ -511,8 +528,14 @@ mod tests {
     fn disabled_and_reaper_deadlines() {
         assert_eq!(config(0, 0).reaper_period(), None);
         assert_eq!(config(1, 0).reaper_period(), Some(Duration::from_secs(1)));
-        assert_eq!(config(300, 0).reaper_period(), Some(Duration::from_secs(30)));
-        assert_eq!(config(300, 40).reaper_period(), Some(Duration::from_secs(10)));
+        assert_eq!(
+            config(300, 0).reaper_period(),
+            Some(Duration::from_secs(30))
+        );
+        assert_eq!(
+            config(300, 40).reaper_period(),
+            Some(Duration::from_secs(10))
+        );
     }
 
     #[tokio::test]
@@ -538,7 +561,10 @@ mod tests {
             config: config(0, 0),
         };
         executor.retire_if_current(&old).await;
-        assert!(Arc::ptr_eq(executor.inner.lock().await.as_ref().unwrap(), &new));
+        assert!(Arc::ptr_eq(
+            executor.inner.lock().await.as_ref().unwrap(),
+            &new
+        ));
         executor.retire_if_current(&new).await;
         assert!(executor.inner.lock().await.is_none());
         Ok(())
@@ -559,19 +585,27 @@ mod tests {
         let caller = {
             let executor = executor.clone();
             tokio::spawn(async move {
-                executor.invoke(ExecutorRequest::BuildDeps(crate::BuildDepsRequest {
-                    deps: vec![],
-                    upload_url: String::new(),
-                }), logs).await
+                executor
+                    .invoke(
+                        ExecutorRequest::BuildDeps(crate::BuildDepsRequest {
+                            deps: vec![],
+                            upload_url: String::new(),
+                        }),
+                        logs,
+                    )
+                    .await
             })
         };
         // Wait for the owned invocation to acquire its worker.
         tokio::time::timeout(Duration::from_secs(5), async {
             loop {
-                if weak_worker.strong_count() >= 2 { break; }
+                if weak_worker.strong_count() >= 2 {
+                    break;
+                }
                 tokio::task::yield_now().await;
             }
-        }).await?;
+        })
+        .await?;
         caller.abort();
         executor.inner.lock().await.take();
         assert!(weak_worker.upgrade().is_some());
@@ -579,7 +613,8 @@ mod tests {
             while weak_worker.upgrade().is_some() {
                 tokio::time::sleep(Duration::from_millis(10)).await;
             }
-        }).await?;
+        })
+        .await?;
         assert_eq!(fs::read_to_string(marker)?, "complete");
         Ok(())
     }
@@ -596,10 +631,10 @@ mod tests {
             let executor = executor.clone();
             calls.push(tokio::spawn(async move {
                 let (logs, mut receiver) = mpsc::unbounded_channel();
-                let (result, ()) = tokio::join!(
-                    executor.invoke_owned(serde_json::json!({}), logs),
-                    async { while receiver.recv().await.is_some() {} },
-                );
+                let (result, ()) =
+                    tokio::join!(executor.invoke_owned(serde_json::json!({}), logs), async {
+                        while receiver.recv().await.is_some() {}
+                    },);
                 result
             }));
         }
@@ -612,7 +647,8 @@ mod tests {
                 drop(slot);
                 tokio::task::yield_now().await;
             }
-        }).await?;
+        })
+        .await?;
         for call in calls {
             assert_eq!(call.await??.response, serde_json::json!({"ok": true}));
         }

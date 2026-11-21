@@ -18,7 +18,7 @@ Inherited release workflows use upstream runner/cache infrastructure and upstrea
 
 ## Status and remaining gates
 
-Source draft only. Native compilation, formatting and all runtime tests are pending; no new image digest exists. Local machine has no Rust, Docker or WSL. Automatic approval review rejected a combined command that would prepare/push a GitHub workflow and publish GHCR images because export to those external destinations had not been explicitly authorized. That command did not execute.
+Source draft only. Native compilation, formatting and all runtime tests are pending; no new image digest exists. Local machine has no Rust, Docker or WSL. The initial automatic approval rejection was resolved by explicit user authorization to push runtime-only code/workflows to the fork and publish its GHCR images. The first CI run stopped at formatting before any compilation or publication; its pinned formatter patch was applied locally.
 
 Required before acceptance: native tests; unchanged and candidate builds on the same controlled Linux toolchain; separate test services, data and credentials; blocked/mocked external effects; same exact intended application commit; active calls, cancellations, long actions, streaming, worker failure and shutdown checks; repeated-deployment memory comparison; sustained representative traffic and latency; rollback/forward restore with fingerprints and pinned images. No native conclusions may be inferred from supervisor prototype measurements.
 

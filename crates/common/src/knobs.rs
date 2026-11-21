@@ -2162,7 +2162,8 @@ pub static HTTP2_CLIENT_KEEPALIVE_TIMEOUT: LazyLock<Duration> =
     LazyLock::new(|| Duration::from_secs(env_config("HTTP2_CLIENT_KEEPALIVE_TIMEOUT_SECONDS", 15)));
 
 /// Idle local Node executor retirement deadline. Zero disables idle retirement.
-/// In-flight calls are excluded; time is measured from the last completed drain.
+/// In-flight calls are excluded; time is measured from the last completed
+/// drain.
 pub static NODE_EXECUTOR_IDLE_TIMEOUT: LazyLock<Duration> =
     LazyLock::new(|| Duration::from_secs(env_config("NODE_EXECUTOR_IDLE_TIMEOUT_SECONDS", 0)));
 
