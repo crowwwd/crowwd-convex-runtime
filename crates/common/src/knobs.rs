@@ -2160,3 +2160,13 @@ pub static HTTP2_CLIENT_KEEPALIVE_INTERVAL: LazyLock<Duration> = LazyLock::new(|
 /// dropped.
 pub static HTTP2_CLIENT_KEEPALIVE_TIMEOUT: LazyLock<Duration> =
     LazyLock::new(|| Duration::from_secs(env_config("HTTP2_CLIENT_KEEPALIVE_TIMEOUT_SECONDS", 15)));
+
+/// Idle local Node executor retirement deadline. Zero disables idle retirement.
+/// In-flight calls are excluded; time is measured from the last completed drain.
+pub static NODE_EXECUTOR_IDLE_TIMEOUT: LazyLock<Duration> =
+    LazyLock::new(|| Duration::from_secs(env_config("NODE_EXECUTOR_IDLE_TIMEOUT_SECONDS", 0)));
+
+/// Maximum local Node executor age. Zero disables age retirement. Old processes
+/// drain in-flight calls while new calls lazily start a replacement executor.
+pub static NODE_EXECUTOR_MAX_LIFETIME: LazyLock<Duration> =
+    LazyLock::new(|| Duration::from_secs(env_config("NODE_EXECUTOR_MAX_LIFETIME_SECONDS", 0)));

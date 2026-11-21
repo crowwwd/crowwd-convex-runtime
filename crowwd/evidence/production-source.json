@@ -1,0 +1,12 @@
+{
+  "retrievedAt": "2026-11-21",
+  "registry": "ghcr.io/convex/convex-backend",
+  "indexDigest": "sha256:294944b33dc55e8f68b2feda11c5e7b195f7778b9ad2951f1bea2744ad392e5a",
+  "platform": "linux/amd64",
+  "platformManifest": "sha256:f92696b709f788a69b959bf4b2f8743816918fbf22b068549ee718ff9959fb58",
+  "configDigest": "sha256:b0a972c2168ad5b820844a324ff7f06f3940caa4f45c4696ebfb5d49338cd50e",
+  "imageCreated": "2026-10-10T01:14:07.514214343Z",
+  "ociRevision": "72ce13c379fe6dbdfc305bc8ad699c5663c68c2a",
+  "buildHistoryRevision": "72ce13c379fe6dbdfc305bc8ad699c5663c68c2a",
+  "rollbackImage": "ghcr.io/convex/convex-backend@sha256:294944b33dc55e8f68b2feda11c5e7b195f7778b9ad2951f1bea2744ad392e5a"
+}

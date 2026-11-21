@@ -1,0 +1,63 @@
+name: Crowwd native preview build
+on:
+  push:
+    branches: [codex/native-executor-recycling]
+permissions:
+  contents: read
+  packages: write
+concurrency:
+  group: crowwd-native-preview
+  cancel-in-progress: false
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 360
+    env:
+      CARGO_BUILD_JOBS: "2"
+      CARGO_INCREMENTAL: "0"
+      CARGO_PROFILE_RELEASE_DEBUG: "0"
+      RUST_BACKTRACE: "1"
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Install build prerequisites
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake libclang-dev libssl-dev pkg-config
+          rustup toolchain install nightly-2026-06-28 --profile minimal --component rustfmt --target wasm32-wasip1
+          curl -fsSL https://mise.run | MISE_VERSION=v2026.8.9 sh
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+      - name: Install locked tools
+        run: |
+          mise trust
+          mise install --locked protoc uv just cmake
+          echo "$(dirname "$(mise which just)")" >> "$GITHUB_PATH"
+          echo "$(dirname "$(mise which uv)")" >> "$GITHUB_PATH"
+          echo "PROTOC=$(mise which protoc)" >> "$GITHUB_ENV"
+          version=$(tr -d 'v\n' < .nvmrc)
+          curl -fsSLO "https://nodejs.org/dist/v$version/node-v$version-linux-x64.tar.xz"
+          curl -fsSLO "https://nodejs.org/dist/v$version/SHASUMS256.txt"
+          grep " node-v$version-linux-x64.tar.xz$" SHASUMS256.txt | sha256sum -c -
+          tar -xJf "node-v$version-linux-x64.tar.xz" -C "$RUNNER_TEMP"
+          echo "$RUNNER_TEMP/node-v$version-linux-x64/bin" >> "$GITHUB_PATH"
+      - name: Format native patch
+        run: |
+          mkdir -p "$RUNNER_TEMP/native-evidence"
+          rustfmt --edition 2024 crates/node_executor/src/local.rs crates/common/src/knobs.rs
+          git diff --binary > "$RUNNER_TEMP/native-evidence/format.patch"
+          git diff --exit-code
+      - uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build unchanged baseline and native candidate once
+        run: bash crowwd/build/linux-build.sh
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: native-preview-evidence
+          path: ${{ runner.temp }}/native-evidence
+          retention-days: 30
